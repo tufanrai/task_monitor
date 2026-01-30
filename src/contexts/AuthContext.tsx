@@ -148,13 +148,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (profileError) throw profileError;
 
-        // // Create user role
-        // const { error: roleError } = await supabase.from("user_roles").insert({
-        //   user_id: data.user.id,
-        //   role,
-        // });
+        // Create user role
+        const { error: roleError } = await supabase.from("user_roles").insert({
+          user_id: data.user.id,
+          role,
+        });
 
-        // if (roleError) throw roleError;
+        if (roleError) throw roleError;
 
         toast.success("Account created successfully!");
       }

@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
-import { Menu, MessageCircle, Loader2 } from 'lucide-react';
-import { useAuthContext } from '@/contexts/AuthContext';
-import { DataProvider } from '@/contexts/DataContext';
-import Sidebar from '@/components/dashboard/Sidebar';
-import EmptyState from '@/components/dashboard/EmptyState';
-import TaskDetail from '@/components/dashboard/TaskDetail';
-import ChatPanel from '@/components/dashboard/ChatPanel';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { Menu, MessageCircle, Loader2 } from "lucide-react";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { DataProvider } from "@/contexts/DataContext";
+import Sidebar from "@/components/dashboard/Sidebar";
+import EmptyState from "@/components/dashboard/EmptyState";
+import TaskDetail from "@/components/dashboard/TaskDetail";
+import ChatPanel from "@/components/dashboard/ChatPanel";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 function DashboardContent() {
   const { isAuthenticated, loading, profile } = useAuthContext();
@@ -20,7 +20,7 @@ function DashboardContent() {
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      navigate('/');
+      navigate("/");
     }
   }, [isAuthenticated, loading, navigate]);
 
@@ -51,17 +51,20 @@ function DashboardContent() {
               <Menu className="w-5 h-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-72 bg-sidebar border-sidebar-border">
-            <Sidebar 
-              onTaskSelect={() => setSidebarOpen(false)} 
+          <SheetContent
+            side="left"
+            className="p-0 w-72 bg-sidebar border-sidebar-border"
+          >
+            <Sidebar
+              onTaskSelect={() => setSidebarOpen(false)}
               selectedTaskId={selectedTaskId}
               onSelectTask={setSelectedTaskId}
             />
           </SheetContent>
         </Sheet>
-        
+
         <span className="text-lg font-bold text-gradient">TaskFlow</span>
-        
+
         <Sheet open={chatOpen} onOpenChange={setChatOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="h-9 w-9">
@@ -76,18 +79,18 @@ function DashboardContent() {
 
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
-        <Sidebar 
+        <Sidebar
           selectedTaskId={selectedTaskId}
           onSelectTask={setSelectedTaskId}
         />
       </div>
-      
+
       {/* Main Content */}
       <main className="flex-1 flex pt-14 lg:pt-0">
         <AnimatePresence mode="wait">
           {selectedTaskId ? (
-            <TaskDetail 
-              key="task-detail" 
+            <TaskDetail
+              key="task-detail"
               taskId={selectedTaskId}
               onDelete={() => setSelectedTaskId(null)}
             />

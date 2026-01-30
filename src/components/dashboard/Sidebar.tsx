@@ -1,14 +1,21 @@
-import { motion } from 'framer-motion';
-import { Layers, LayoutDashboard, CheckSquare, LogOut, Plus, Loader2 } from 'lucide-react';
-import { useAuthContext } from '@/contexts/AuthContext';
-import { useDataContext } from '@/contexts/DataContext';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { motion } from "framer-motion";
+import {
+  Layers,
+  LayoutDashboard,
+  CheckSquare,
+  LogOut,
+  Plus,
+  Loader2,
+} from "lucide-react";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { useDataContext } from "@/contexts/DataContext";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const priorityColors = {
-  high: 'bg-priority-high',
-  medium: 'bg-priority-medium',
-  low: 'bg-priority-low',
+  high: "bg-priority-high",
+  medium: "bg-priority-medium",
+  low: "bg-priority-low",
 };
 
 interface SidebarProps {
@@ -17,28 +24,35 @@ interface SidebarProps {
   onSelectTask: (taskId: string | null) => void;
 }
 
-export default function Sidebar({ onTaskSelect, selectedTaskId, onSelectTask }: SidebarProps) {
+export default function Sidebar({
+  onTaskSelect,
+  selectedTaskId,
+  onSelectTask,
+}: SidebarProps) {
   const { profile, signOut } = useAuthContext();
   const { tasks, tasksLoading, addTask } = useDataContext();
   const navigate = useNavigate();
-  const isClient = profile?.role === 'client';
+  const isClient = profile?.role === "client";
 
+  console.log("profile:", profile);
   const handleLogout = async () => {
     await signOut();
-    navigate('/');
+    navigate("/");
   };
 
   const handleAddTask = async () => {
     if (isClient) return;
     try {
       await addTask({
-        title: 'New Task',
-        description: 'Add description here...',
+        title: "New Task",
+        description: "Add description here...",
         progress: 0,
-        start_date: new Date().toISOString().split('T')[0],
-        due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        start_date: new Date().toISOString().split("T")[0],
+        due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
         assignees: [],
-        priority: 'medium',
+        priority: "medium",
         created_by: profile?.user_id || null,
       });
       onTaskSelect?.();
@@ -86,7 +100,9 @@ export default function Sidebar({ onTaskSelect, selectedTaskId, onSelectTask }: 
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <CheckSquare className="w-4 h-4" />
             <span>Tasks</span>
-            <span className="px-1.5 py-0.5 text-xs bg-secondary rounded-md">{tasks.length}</span>
+            <span className="px-1.5 py-0.5 text-xs bg-secondary rounded-md">
+              {tasks.length}
+            </span>
           </div>
           {!isClient && (
             <Button
@@ -107,7 +123,9 @@ export default function Sidebar({ onTaskSelect, selectedTaskId, onSelectTask }: 
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </div>
           ) : tasks.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No tasks yet</p>
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No tasks yet
+            </p>
           ) : (
             tasks.map((task) => (
               <motion.button
@@ -117,16 +135,22 @@ export default function Sidebar({ onTaskSelect, selectedTaskId, onSelectTask }: 
                 onClick={() => handleSelectTask(task.id)}
                 className={`w-full text-left p-3 rounded-xl transition-all duration-200 group ${
                   selectedTaskId === task.id
-                    ? 'bg-primary/10 border border-primary/30'
-                    : 'hover:bg-sidebar-accent border border-transparent'
+                    ? "bg-primary/10 border border-primary/30"
+                    : "hover:bg-sidebar-accent border border-transparent"
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-2 h-2 rounded-full mt-1.5 ${priorityColors[task.priority]}`} />
+                  <div
+                    className={`w-2 h-2 rounded-full mt-1.5 ${priorityColors[task.priority]}`}
+                  />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium truncate ${
-                      selectedTaskId === task.id ? 'text-primary' : 'text-foreground'
-                    }`}>
+                    <p
+                      className={`text-sm font-medium truncate ${
+                        selectedTaskId === task.id
+                          ? "text-primary"
+                          : "text-foreground"
+                      }`}
+                    >
                       {task.title}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
@@ -136,7 +160,9 @@ export default function Sidebar({ onTaskSelect, selectedTaskId, onSelectTask }: 
                           style={{ width: `${task.progress}%` }}
                         />
                       </div>
-                      <span className="text-xs text-muted-foreground">{task.progress}%</span>
+                      <span className="text-xs text-muted-foreground">
+                        {task.progress}%
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -153,10 +179,19 @@ export default function Sidebar({ onTaskSelect, selectedTaskId, onSelectTask }: 
             {profile?.avatar || profile?.name?.substring(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">{profile?.name}</p>
-            <p className="text-xs text-muted-foreground capitalize">{profile?.role}</p>
+            <p className="text-sm font-medium text-foreground truncate">
+              {profile?.name}
+            </p>
+            <p className="text-xs text-muted-foreground capitalize">
+              {profile?.role}
+            </p>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleLogout}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleLogout}
+          >
             <LogOut className="w-4 h-4 text-muted-foreground" />
           </Button>
         </div>

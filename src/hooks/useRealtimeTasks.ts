@@ -1,9 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
-import { toast } from 'sonner';
+import { useEffect, useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
-export type Priority = 'high' | 'medium' | 'low';
+export type Priority = "high" | "medium" | "low";
 
 export interface Subtask {
   id: string;
@@ -39,28 +39,30 @@ export function useRealtimeTasks() {
 
   const fetchTasks = useCallback(async () => {
     try {
+      // fetches the tasks from the database
       const { data: tasksData, error: tasksError } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("tasks")
+        .select("*");
 
       if (tasksError) throw tasksError;
 
+      // fetches the sub tasks of the prime/root task
       const { data: subtasksData, error: subtasksError } = await supabase
-        .from('subtasks')
-        .select('*')
-        .order('created_at', { ascending: true });
+        .from("subtasks")
+        .select("*");
 
       if (subtasksError) throw subtasksError;
 
       const tasksWithSubtasks = (tasksData || []).map((task: any) => ({
         ...task,
-        subtasks: (subtasksData || []).filter((st: any) => st.task_id === task.id),
+        subtasks: (subtasksData || []).filter(
+          (st: any) => st.task_id === task.id,
+        ),
       }));
 
       setTasks(tasksWithSubtasks);
     } catch (error) {
-      console.error('Error fetching tasks:', error);
+      console.error("Error fetching tasks:", error);
     } finally {
       setLoading(false);
     }
@@ -71,63 +73,63 @@ export function useRealtimeTasks() {
 
     // Subscribe to realtime changes for tasks
     const tasksChannel = supabase
-      .channel('tasks-changes')
+      .channel("tasks-changes")
       .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'tasks' },
+        "postgres_changes",
+        { event: "*", schema: "public", table: "tasks" },
         (payload: RealtimePostgresChangesPayload<any>) => {
-          if (payload.eventType === 'INSERT') {
+          if (payload.eventType === "INSERT") {
             setTasks((prev) => [{ ...payload.new, subtasks: [] }, ...prev]);
-          } else if (payload.eventType === 'UPDATE') {
+          } else if (payload.eventType === "UPDATE") {
             setTasks((prev) =>
               prev.map((t) =>
-                t.id === payload.new.id ? { ...t, ...payload.new } : t
-              )
+                t.id === payload.new.id ? { ...t, ...payload.new } : t,
+              ),
             );
-          } else if (payload.eventType === 'DELETE') {
+          } else if (payload.eventType === "DELETE") {
             setTasks((prev) => prev.filter((t) => t.id !== payload.old.id));
           }
-        }
+        },
       )
       .subscribe();
 
     // Subscribe to realtime changes for subtasks
     const subtasksChannel = supabase
-      .channel('subtasks-changes')
+      .channel("subtasks-changes")
       .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'subtasks' },
+        "postgres_changes",
+        { event: "*", schema: "public", table: "subtasks" },
         (payload: RealtimePostgresChangesPayload<any>) => {
-          if (payload.eventType === 'INSERT') {
+          if (payload.eventType === "INSERT") {
             setTasks((prev) =>
               prev.map((t) =>
                 t.id === payload.new.task_id
                   ? { ...t, subtasks: [...t.subtasks, payload.new] }
-                  : t
-              )
+                  : t,
+              ),
             );
-          } else if (payload.eventType === 'UPDATE') {
+          } else if (payload.eventType === "UPDATE") {
             setTasks((prev) =>
               prev.map((t) =>
                 t.id === payload.new.task_id
                   ? {
                       ...t,
                       subtasks: t.subtasks.map((st) =>
-                        st.id === payload.new.id ? payload.new : st
+                        st.id === payload.new.id ? payload.new : st,
                       ),
                     }
-                  : t
-              )
+                  : t,
+              ),
             );
-          } else if (payload.eventType === 'DELETE') {
+          } else if (payload.eventType === "DELETE") {
             setTasks((prev) =>
               prev.map((t) => ({
                 ...t,
                 subtasks: t.subtasks.filter((st) => st.id !== payload.old.id),
-              }))
+              })),
             );
           }
-        }
+        },
       )
       .subscribe();
 
@@ -137,9 +139,9 @@ export function useRealtimeTasks() {
     };
   }, [fetchTasks]);
 
-  const addTask = async (task: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'subtasks'>) => {
+  const addTask = async (task: Omit<Task, "id" | "subtasks">) => {
     try {
-      const { error } = await supabase.from('tasks').insert({
+      const { error } = await supabase.from("tasks").insert({
         title: task.title,
         description: task.description,
         progress: task.progress,
@@ -151,9 +153,9 @@ export function useRealtimeTasks() {
       });
 
       if (error) throw error;
-      toast.success('Task created successfully');
+      toast.success("Task created successfully");
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create task');
+      toast.error(error.message || "Failed to create task");
       throw error;
     }
   };
@@ -162,53 +164,56 @@ export function useRealtimeTasks() {
     try {
       const { subtasks, ...taskUpdates } = updates;
       const { error } = await supabase
-        .from('tasks')
+        .from("tasks")
         .update(taskUpdates)
-        .eq('id', taskId);
+        .eq("id", taskId);
 
       if (error) throw error;
     } catch (error: any) {
-      toast.error(error.message || 'Failed to update task');
+      toast.error(error.message || "Failed to update task");
       throw error;
     }
   };
 
   const deleteTask = async (taskId: string) => {
     try {
-      const { error } = await supabase.from('tasks').delete().eq('id', taskId);
+      const { error } = await supabase.from("tasks").delete().eq("id", taskId);
       if (error) throw error;
-      toast.success('Task deleted successfully');
+      toast.success("Task deleted successfully");
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete task');
+      toast.error(error.message || "Failed to delete task");
       throw error;
     }
   };
 
   const addSubtask = async (taskId: string, title: string) => {
     try {
-      const { error } = await supabase.from('subtasks').insert({
+      const { error } = await supabase.from("subtasks").insert({
         task_id: taskId,
         title,
-        priority: 'medium',
+        priority: "medium",
       });
 
       if (error) throw error;
     } catch (error: any) {
-      toast.error(error.message || 'Failed to add subtask');
+      toast.error(error.message || "Failed to add subtask");
       throw error;
     }
   };
 
-  const updateSubtask = async (subtaskId: string, updates: Partial<Subtask>) => {
+  const updateSubtask = async (
+    subtaskId: string,
+    updates: Partial<Subtask>,
+  ) => {
     try {
       const { error } = await supabase
-        .from('subtasks')
+        .from("subtasks")
         .update(updates)
-        .eq('id', subtaskId);
+        .eq("id", subtaskId);
 
       if (error) throw error;
     } catch (error: any) {
-      toast.error(error.message || 'Failed to update subtask');
+      toast.error(error.message || "Failed to update subtask");
       throw error;
     }
   };
@@ -219,10 +224,13 @@ export function useRealtimeTasks() {
 
   const removeSubtask = async (subtaskId: string) => {
     try {
-      const { error } = await supabase.from('subtasks').delete().eq('id', subtaskId);
+      const { error } = await supabase
+        .from("subtasks")
+        .delete()
+        .eq("id", subtaskId);
       if (error) throw error;
     } catch (error: any) {
-      toast.error(error.message || 'Failed to remove subtask');
+      toast.error(error.message || "Failed to remove subtask");
       throw error;
     }
   };

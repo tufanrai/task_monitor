@@ -28,8 +28,10 @@ export default function AuthPage() {
           name,
           contact,
           representative,
+          "client",
         );
-        // navigate("/dashboard");
+        console.log(resp);
+        navigate("/dashboard");
       } catch (error) {
         // Error is handled in the signIn function
         console.log("This is the response error ", error);

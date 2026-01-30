@@ -1,7 +1,7 @@
-import AuthPage from './AuthPage';
+import SignupPage from "./SignupPage";
 
 const Index = () => {
-  return <AuthPage />;
+  return <SignupPage />;
 };
 
 export default Index;
