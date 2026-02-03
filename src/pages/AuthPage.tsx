@@ -245,7 +245,7 @@ export default function AuthPage() {
             className="text-center text-sm text-muted-foreground mt-6"
           >
             Already have an account?{" "}
-            <Link to="/signup" className="text-primary hover:underline">
+            <Link to="/" className="text-primary hover:underline">
               Sign In
             </Link>
           </motion.p>

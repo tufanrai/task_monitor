@@ -158,7 +158,7 @@ export default function SignupPage() {
             className="text-center text-sm text-muted-foreground mt-6"
           >
             Don't have an account?{" "}
-            <Link to="/" className="text-primary hover:underline">
+            <Link to="/signup" className="text-primary hover:underline">
               Sign up
             </Link>
           </motion.p>
